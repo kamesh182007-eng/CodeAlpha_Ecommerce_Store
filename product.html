@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Product Details - ShopEase</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <header>
+        <div class="logo">ShopEase</div>
+        <nav>
+            <a href="index.html">Home</a>
+            <a href="index.html#cart-section">Cart</a>
+        </nav>
+    </header>
+
+    <section id="product-detail">
+        <p>Loading...</p>
+    </section>
+
+    <footer>
+        <p>© 2026 ShopEase. All Rights Reserved.</p>
+    </footer>
+
+    <script>
+        const BASE_URL = 'http://127.0.0.1:8000/api';
+        const params = new URLSearchParams(window.location.search);
+        const productId = params.get('id');
+        let product = null;
+
+        async function loadProduct() {
+            const box = document.getElementById('product-detail');
+            try {
+                const response = await fetch(BASE_URL + '/products/' + productId + '/');
+                if (!response.ok) {
+                    box.innerHTML = '<p>Product not found.</p><p><a href="index.html">Back to shop</a></p>';
+                    return;
+                }
+                product = await response.json();
+
+                box.innerHTML =
+                    '<p><a href="index.html">← Back to shop</a></p>' +
+                    (product.image_url ? '<img src="' + product.image_url + '" alt="' + product.name + '" width="300">' : '') +
+                    '<h2>' + product.name + '</h2>' +
+                    '<p>' + product.description + '</p>' +
+                    '<p><strong>₹' + product.price + '</strong></p>' +
+                    '<p>' + (product.stock > 0 ? 'In stock: ' + product.stock : 'Out of stock') + '</p>' +
+                    (product.stock > 0 ? '<button onclick="addToCart()">Add to Cart</button>' : '') +
+                    '<p id="added-msg"></p>';
+            } catch (error) {
+                box.innerHTML = '<p>Could not load the product. Is the server running?</p>';
+            }
+        }
+
+        function addToCart() {
+            let cart = JSON.parse(localStorage.getItem('cart')) || [];
+            const item = cart.find(function (i) { return i.id === product.id; });
+
+            if (item) {
+                item.qty += 1;
+            } else {
+                cart.push({ id: product.id, name: product.name, price: product.price, qty: 1 });
+            }
+            localStorage.setItem('cart', JSON.stringify(cart));
+            document.getElementById('added-msg').textContent = 'Added to cart! Go to Home → Cart to place your order.';
+        }
+
+        loadProduct();
+    </script>
+
+</body>
+</html>

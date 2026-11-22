@@ -1,0 +1,13 @@
+# Virtual environment
+venv/
+
+# Python cache
+__pycache__/
+*.pyc
+
+# Local database (each person creates their own)
+db.sqlite3
+
+# Secrets and editor settings
+.env
+.vscode/
